@@ -6,9 +6,9 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("Prompter")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("A lil' helper library for Service Fabric actor's reminders.")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
+[assembly: AssemblyCompany("Nick Darvey")]
 [assembly: AssemblyProduct("Prompter")]
 [assembly: AssemblyCopyright("Copyright ©  2017")]
 [assembly: AssemblyTrademark("")]
