@@ -1,0 +1,34 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.26403.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Prompter", "Prompter\Prompter.csproj", "{343B4BA5-140E-4410-85CB-ADA5FAE4DCED}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Prompter.Tests", "Prompter.Tests\Prompter.Tests.csproj", "{F3A2C794-DF37-4D8A-9E62-59C05262782D}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{CC292BAE-5251-4580-B8E3-A93BC0577BBF}"
+	ProjectSection(SolutionItems) = preProject
+		appveyor.yml = appveyor.yml
+		README.md = README.md
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{343B4BA5-140E-4410-85CB-ADA5FAE4DCED}.Debug|x64.ActiveCfg = Debug|x64
+		{343B4BA5-140E-4410-85CB-ADA5FAE4DCED}.Debug|x64.Build.0 = Debug|x64
+		{343B4BA5-140E-4410-85CB-ADA5FAE4DCED}.Release|x64.ActiveCfg = Release|x64
+		{343B4BA5-140E-4410-85CB-ADA5FAE4DCED}.Release|x64.Build.0 = Release|x64
+		{F3A2C794-DF37-4D8A-9E62-59C05262782D}.Debug|x64.ActiveCfg = Debug|x64
+		{F3A2C794-DF37-4D8A-9E62-59C05262782D}.Debug|x64.Build.0 = Debug|x64
+		{F3A2C794-DF37-4D8A-9E62-59C05262782D}.Release|x64.ActiveCfg = Release|x64
+		{F3A2C794-DF37-4D8A-9E62-59C05262782D}.Release|x64.Build.0 = Release|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
