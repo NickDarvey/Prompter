@@ -1,4 +1,4 @@
-# SomethingSomethingConfig
+# Prompter
 A lil' helper library for Service Fabric actor's reminders.
 
 It adds two things we found ourselves implementing over and over again:
@@ -12,13 +12,45 @@ It adds two things we found ourselves implementing over and over again:
   This makes that process automatic with `PromptOnce`.
   This is currently [listed as a functional bug](https://github.com/Azure/service-fabric-issues/issues/178), but this will get you around it.
 
-## Usage
+* Correlation IDs
 
+  We use found it super useful to have an ID we could track across all of our services. This let's you track a GUID across reminders.
+
+## Usage
+```c#
+
+internal sealed class OrderActor : PromptableActor, IOrderActor
+{
+    public async Task PlaceOrder(OrderRequest req)
+    {
+        // Some internal logic, whatever
+        var token = await SetOrderState(req);
+
+        // Register a prompt to come back in seven days
+        await PromptOnce(token, TimeSpan.FromDays(7));
+    }
+
+    protected override async Task OnPrompt(string name, byte[] context, TimeSpan due, TimeSpan period, Guid cid)
+    {
+        var token = name;
+        var order = await GetOrderState(name);
+        await SendEmailReminder(order);
+    }
+}
+```
 
 ## Setup
-Install it from [NuGet](https://www.nuget.org/packages/Prompter/) (`Install-Package Prompter`)
-and setup a callback:
+Install it from [NuGet](https://www.nuget.org/packages/Prompter/) (`Install-Package Prompter`) and use one of the two options for integration.
+
+### A. Inheritance
+```c#
+internal sealed class MyActor : PromptableActor, IMyActor { }
 ```
+
+### B. Pretending you have traits
+
+Setup a callback:
+```c#
 private Task OnPrompt(string name, byte[] context, TimeSpan due, TimeSpan period, Guid cid)
 {
     // Do stuff
@@ -26,7 +58,7 @@ private Task OnPrompt(string name, byte[] context, TimeSpan due, TimeSpan period
 ```
 
 then add it to your actor's constructor:
-```
+```c#
 private readonly Prompt _prompt;
 
 public ActorFixture(ActorService svc, ActorId id)
@@ -41,8 +73,8 @@ public ActorFixture(ActorService svc, ActorId id)
 }
 ```
 
-link the reminder callback to Prompter:
-```
+and link the reminder callback to Prompter:
+```c#
 public Task ReceiveReminderAsync(string reminderName, byte[] state, TimeSpan dueTime, TimeSpan period) =>
     _prompt.ReceivePrompt(reminderName, state, dueTime, period);
 ```

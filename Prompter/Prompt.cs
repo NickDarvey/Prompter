@@ -14,7 +14,7 @@ namespace Prompter
     public delegate IActorReminder GetReminder(string reminderName);
     public delegate Task<IActorReminder> RegisterReminder(string reminderName, byte[] state, TimeSpan dueTime, TimeSpan period);
     public delegate Task UnregisterReminder(IActorReminder reminder);
-    public delegate Task OnPrompt(string name, byte[] context, TimeSpan due, TimeSpan period, Guid? cid);
+    public delegate Task OnPrompt(string name, byte[] state, TimeSpan due, TimeSpan period, Guid? cid);
 
     public sealed class Prompt
     {
@@ -124,19 +124,19 @@ namespace Prompter
             }
         }
 
-        public async Task ReceivePrompt(string name, byte[] data, TimeSpan dueTime, TimeSpan period)
+        public async Task ReceivePrompt(string name, byte[] state, TimeSpan dueTime, TimeSpan period)
         {
             Log.PromptReceived(_actor, name);
 
             try
             {
-                var context = _serializer.Deserialize<PromptContext>(data);
+                var context = _serializer.Deserialize<PromptContext>(state);
                 if (context.Kind == PromptKind.Once) await ForgetPrompt(name);
                 await _prompt(name, context.Data, dueTime, period, context.Cid);
             }
             catch(SerializationException)
             {
-                await _prompt(name, data, dueTime, period, null);
+                await _prompt(name, state, dueTime, period, null);
             }
         }
     }
