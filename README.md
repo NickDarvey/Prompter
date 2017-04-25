@@ -13,6 +13,9 @@ It adds two things we found ourselves implementing over and over again:
   This is currently [listed as a functional bug](https://github.com/Azure/service-fabric-issues/issues/178), but this will get you around it.
 
 ## Usage
+
+
+## Setup
 Install it from [NuGet](https://www.nuget.org/packages/Prompter/) (`Install-Package Prompter`)
 and setup a callback:
 ```
@@ -47,6 +50,8 @@ public Task ReceiveReminderAsync(string reminderName, byte[] state, TimeSpan due
 It's awful, isn't it?
 I couldn't figure out a nicer way layer it on but I'm open to suggestions.
 (We have a bunch of these 'traits' we wanted to use and didn't like the idea of bundling them all into one base class.)
+
+
 
 ## Logging
 You should be logging everything like crazy, so I chucked in logs here too.

@@ -3,16 +3,18 @@ using Microsoft.ServiceFabric.Actors.Runtime;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 using static Prompter.PrompterEventSource;
+using static Prompter.Serialization;
 
 namespace Prompter
 {
     public delegate IActorReminder GetReminder(string reminderName);
     public delegate Task<IActorReminder> RegisterReminder(string reminderName, byte[] state, TimeSpan dueTime, TimeSpan period);
     public delegate Task UnregisterReminder(IActorReminder reminder);
-    public delegate Task OnPrompt(string name, byte[] context, TimeSpan due, TimeSpan period, Guid cid);
+    public delegate Task OnPrompt(string name, byte[] context, TimeSpan due, TimeSpan period, Guid? cid);
 
     public sealed class Prompt
     {
@@ -20,6 +22,7 @@ namespace Prompter
         private const string PROMPT_ONCE_PREFIX = "prompt:once";
         private const string PROMPT_MANY_PREFIX = "prompt:many";
 
+        private readonly DataContractSerializer _serializer = new DataContractSerializer(typeof(PromptContext));
         private readonly OnPrompt _prompt;
         private readonly GetReminder _get;
         private readonly RegisterReminder _register;
@@ -64,14 +67,14 @@ namespace Prompter
         /// A reference to the reminder.
         /// Store this if you want to manually unregister a prompt.
         /// </returns>
-        public Task<IActorReminder> PromptOnce(string name, TimeSpan due, Guid? cid = null, byte[] context = null)
+        public Task<IActorReminder> PromptOnce(string name, TimeSpan due, Guid? cid = null, byte[] data = null)
         {
-            GuardNames(name);
+            var context = _serializer.Serialize(new PromptContext(cid, PromptKind.Once, data));
             return _register(
-                PROMPT_ONCE_PREFIX + PROMPT_DELIMITER + (cid ?? Guid.NewGuid()) + PROMPT_DELIMITER + name,
-                context ?? new byte[0],
-                due,
-                TimeSpan.FromMilliseconds(-1))
+                reminderName: name,
+                state: context,
+                dueTime: due,
+                period: TimeSpan.FromMilliseconds(-1))
             .ContinueWith(t => { Log.PromptRegistered(_actor, t.Result.Name, t.Result.DueTime, t.Result.Period); return t.Result; });
         }
 
@@ -94,14 +97,14 @@ namespace Prompter
         /// A reference to the reminder.
         /// Store this if you want to manually unregister a prompt.
         /// </returns>
-        public Task<IActorReminder> PromptMany(string name, TimeSpan due, TimeSpan period, Guid? cid = null, byte[] context = null)
+        public Task<IActorReminder> PromptMany(string name, TimeSpan due, TimeSpan period, Guid? cid = null, byte[] data = null)
         {
-            GuardNames(name);
+            var context = _serializer.Serialize(new PromptContext(cid, PromptKind.Many, data));
             return _register(
-                PROMPT_MANY_PREFIX + PROMPT_DELIMITER + (cid ?? Guid.NewGuid()) + PROMPT_DELIMITER + name,
-                context ?? new byte[0],
-                due,
-                period)
+                reminderName: name,
+                state: context,
+                dueTime: due,
+                period: period)
             .ContinueWith(t => { Log.PromptRegistered(_actor, t.Result.Name, t.Result.DueTime, t.Result.Period); return t.Result; });
         }
 
@@ -121,28 +124,20 @@ namespace Prompter
             }
         }
 
-        public async Task ReceivePrompt(string name, byte[] context, TimeSpan dueTime, TimeSpan period)
+        public async Task ReceivePrompt(string name, byte[] data, TimeSpan dueTime, TimeSpan period)
         {
             Log.PromptReceived(_actor, name);
 
-            var parts = name.Split(PROMPT_DELIMITER);
-            var known = parts.Length == 3 && parts[0] == PROMPT_ONCE_PREFIX || parts[0] == PROMPT_MANY_PREFIX;
-
-            if (known && parts[0] == PROMPT_ONCE_PREFIX) await ForgetPrompt(name);
-
-            if (known && Guid.TryParse(parts[1], out var cid))
+            try
             {
-                await _prompt(parts[2], context, dueTime, period, cid);
+                var context = _serializer.Deserialize<PromptContext>(data);
+                if (context.Kind == PromptKind.Once) await ForgetPrompt(name);
+                await _prompt(name, context.Data, dueTime, period, context.Cid);
             }
-            else
+            catch(SerializationException)
             {
-                await _prompt(name, context, dueTime, period, Guid.Empty);
+                await _prompt(name, data, dueTime, period, null);
             }
-        }
-
-        private static void GuardNames(string name)
-        {
-            if (name.Contains('|')) throw new ArgumentException("'|' is a protected character for reminder names");
         }
     }
 }

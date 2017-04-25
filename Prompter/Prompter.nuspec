@@ -10,7 +10,7 @@
     <projectUrl>https://github.com/NickDarvey/Prompter</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>$description$</description>
-    <releaseNotes>Inital release.</releaseNotes>
+    <releaseNotes>Uses the given name for reminders, moves context into reminder's state. This is a breaking change.</releaseNotes>
     <copyright>Copyright 2017</copyright>
     <tags>service-fabric actors reminders timers</tags>
   </metadata>
