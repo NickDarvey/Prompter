@@ -13,12 +13,12 @@ namespace Prompter.Tests
         [Fact]
         public async Task Prompt_OnceAndMany_ReturnsValidReminder()
         {
-            OnPrompt callback = (string n, byte[] x, TimeSpan d, TimeSpan p, Guid? c) => Task.FromResult(false);
+            OnPrompt callback = (string n, byte[] x, TimeSpan d, TimeSpan p, string c) => Task.FromResult(false);
             var service = MockActorServiceFactory.CreateActorServiceForActor<ActorFixture>(
                 (svc, id) => new ActorFixture(svc, id, callback));
-            var actor = service.Activate(new ActorId(Guid.NewGuid()));
+            var actor = service.Activate(new ActorId(Guid.NewGuid().ToString()));
 
-            var cid = Guid.NewGuid();
+            var cid = Guid.NewGuid().ToString();
             var onceName = "once thingy";
             var manyName = "manyName";
             var manyPeriod = TimeSpan.FromSeconds(5);
@@ -38,15 +38,15 @@ namespace Prompter.Tests
         [Fact]
         public async Task Prompt_OnceAndMany_StoresValidReminder()
         {
-            OnPrompt callback = (string n, byte[] x, TimeSpan d, TimeSpan p, Guid? c) => Task.FromResult(false);
+            OnPrompt callback = (string n, byte[] x, TimeSpan d, TimeSpan p, string c) => Task.FromResult(false);
             var service = MockActorServiceFactory.CreateActorServiceForActor<ActorFixture>(
                 (svc, id) => new ActorFixture(svc, id, callback));
-            var actor = service.Activate(new ActorId(Guid.NewGuid()));
+            var actor = service.Activate(new ActorId(Guid.NewGuid().ToString()));
 
             var oncePeriod = TimeSpan.FromMilliseconds(-1); // SF's way of saying 'never repeat'
 
-            var onceResult = await actor.PromptOnce("once", TimeSpan.FromSeconds(1), Guid.NewGuid());
-            var manyResult = await actor.PromptMany("many", TimeSpan.FromSeconds(2), TimeSpan.FromSeconds(5), Guid.NewGuid());
+            var onceResult = await actor.PromptOnce("once", TimeSpan.FromSeconds(1), Guid.NewGuid().ToString());
+            var manyResult = await actor.PromptMany("many", TimeSpan.FromSeconds(2), TimeSpan.FromSeconds(5), Guid.NewGuid().ToString());
 
             var onceOutcome = actor.GetActorReminders().First();
             var manyOutcome = actor.GetActorReminders().Last();
@@ -63,13 +63,13 @@ namespace Prompter.Tests
         [Fact]
         public async Task Prompt_WithCid_CallbackReturnsCid()
         {
-            var expected = Guid.NewGuid();
-            Guid? result = null;
-            OnPrompt callback = (string n, byte[] x, TimeSpan d, TimeSpan p, Guid? c) =>
+            var expected = Guid.NewGuid().ToString();
+            string result = null;
+            OnPrompt callback = (string n, byte[] x, TimeSpan d, TimeSpan p, string c) =>
             { result = c; return Task.FromResult(false); };
             var service = MockActorServiceFactory.CreateActorServiceForActor<ActorFixture>(
                 (svc, id) => new ActorFixture(svc, id, callback));
-            var actor = service.Activate(new ActorId(Guid.NewGuid()));
+            var actor = service.Activate(new ActorId(Guid.NewGuid().ToString()));
 
             var reminder = await actor.PromptOnce("yo", TimeSpan.FromSeconds(1), expected);
             await actor.ReceiveReminderAsync(reminder.Name, reminder.State, reminder.DueTime, reminder.Period);
@@ -81,12 +81,12 @@ namespace Prompter.Tests
         [Fact]
         public async Task Prompt_WithoutCid_CallbackDoesNotReturnCid()
         {
-            Guid? result = null;
-            OnPrompt callback = (string n, byte[] x, TimeSpan d, TimeSpan p, Guid? c) =>
+            string result = null;
+            OnPrompt callback = (string n, byte[] x, TimeSpan d, TimeSpan p, string c) =>
             { result = c; return Task.FromResult(false); };
             var service = MockActorServiceFactory.CreateActorServiceForActor<ActorFixture>(
                 (svc, id) => new ActorFixture(svc, id, callback));
-            var actor = service.Activate(new ActorId(Guid.NewGuid()));
+            var actor = service.Activate(new ActorId(Guid.NewGuid().ToString()));
 
             var reminder = await actor.PromptOnce("yo", TimeSpan.FromSeconds(1));
             await actor.ReceiveReminderAsync(reminder.Name, reminder.State, reminder.DueTime, reminder.Period);
@@ -97,12 +97,12 @@ namespace Prompter.Tests
         [Fact]
         public async Task Prompt_Once_UnregistersReminder()
         {
-            OnPrompt callback = (string n, byte[] x, TimeSpan d, TimeSpan p, Guid? c) => Task.FromResult(false);
+            OnPrompt callback = (string n, byte[] x, TimeSpan d, TimeSpan p, string c) => Task.FromResult(false);
             var service = MockActorServiceFactory.CreateActorServiceForActor<ActorFixture>(
                 (svc, id) => new ActorFixture(svc, id, callback));
-            var actor = service.Activate(new ActorId(Guid.NewGuid()));
+            var actor = service.Activate(new ActorId(Guid.NewGuid().ToString()));
 
-            var cid = Guid.NewGuid();
+            var cid = Guid.NewGuid().ToString();
             var name = "test reminder";
             var due = TimeSpan.FromSeconds(1);
             var never = TimeSpan.FromMilliseconds(-1); // SF's way of saying 'never repeat'
@@ -118,13 +118,13 @@ namespace Prompter.Tests
         public async Task Prompt_OnceAndMany_Callsback()
         {
             int callbacks = 0;
-            OnPrompt callback = (string n, byte[] x, TimeSpan d, TimeSpan p, Guid? c) =>
+            OnPrompt callback = (string n, byte[] x, TimeSpan d, TimeSpan p, string c) =>
             { callbacks++; return Task.FromResult(false); };
             var service = MockActorServiceFactory.CreateActorServiceForActor<ActorFixture>(
                 (svc, id) => new ActorFixture(svc, id, callback));
-            var actor = service.Activate(new ActorId(Guid.NewGuid()));
+            var actor = service.Activate(new ActorId(Guid.NewGuid().ToString()));
 
-            var cid = Guid.NewGuid();
+            var cid = Guid.NewGuid().ToString();
             var name = "test reminder";
             var due = TimeSpan.FromSeconds(1);
             var never = TimeSpan.FromMilliseconds(-1); // SF's way of saying 'never repeat'
@@ -145,11 +145,11 @@ namespace Prompter.Tests
             string resultName = null;
             var expectedData = new byte[] { 0x00, 0x01 };
             byte[] resultData = null;
-            OnPrompt callback = (string n, byte[] x, TimeSpan d, TimeSpan p, Guid? c) =>
+            OnPrompt callback = (string n, byte[] x, TimeSpan d, TimeSpan p, string c) =>
             { resultName = n; resultData = x; return Task.FromResult(false); };
             var service = MockActorServiceFactory.CreateActorServiceForActor<ActorFixture>(
                 (svc, id) => new ActorFixture(svc, id, callback));
-            var actor = service.Activate(new ActorId(Guid.NewGuid()));
+            var actor = service.Activate(new ActorId(Guid.NewGuid().ToString()));
 
             await actor.ReceiveReminderAsync(expectedName, expectedData, TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(1));
 
@@ -160,12 +160,12 @@ namespace Prompter.Tests
         [Fact]
         public async Task Forget_OnceAndMany_UnregistersReminders()
         {
-            OnPrompt callback = (string n, byte[] x, TimeSpan d, TimeSpan p, Guid? c) => Task.FromResult(false);
+            OnPrompt callback = (string n, byte[] x, TimeSpan d, TimeSpan p, string c) => Task.FromResult(false);
             var service = MockActorServiceFactory.CreateActorServiceForActor<ActorFixture>(
                 (svc, id) => new ActorFixture(svc, id, callback));
-            var actor = service.Activate(new ActorId(Guid.NewGuid()));
+            var actor = service.Activate(new ActorId(Guid.NewGuid().ToString()));
 
-            var cid = Guid.NewGuid();
+            var cid = Guid.NewGuid().ToString();
             var due = TimeSpan.FromSeconds(1);
             var later = TimeSpan.FromSeconds(5);
 

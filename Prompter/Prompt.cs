@@ -14,7 +14,7 @@ namespace Prompter
     public delegate IActorReminder GetReminder(string reminderName);
     public delegate Task<IActorReminder> RegisterReminder(string reminderName, byte[] state, TimeSpan dueTime, TimeSpan period);
     public delegate Task UnregisterReminder(IActorReminder reminder);
-    public delegate Task OnPrompt(string name, byte[] state, TimeSpan due, TimeSpan period, Guid? cid);
+    public delegate Task OnPrompt(string name, byte[] state, TimeSpan due, TimeSpan period, string cid);
 
     public sealed class Prompt
     {
@@ -67,7 +67,7 @@ namespace Prompter
         /// A reference to the reminder.
         /// Store this if you want to manually unregister a prompt.
         /// </returns>
-        public Task<IActorReminder> PromptOnce(string name, TimeSpan due, Guid? cid = null, byte[] data = null)
+        public Task<IActorReminder> PromptOnce(string name, TimeSpan due, string cid = null, byte[] data = null)
         {
             var context = _serializer.Serialize(new PromptContext(cid, PromptKind.Once, data));
             return _register(
@@ -97,7 +97,7 @@ namespace Prompter
         /// A reference to the reminder.
         /// Store this if you want to manually unregister a prompt.
         /// </returns>
-        public Task<IActorReminder> PromptMany(string name, TimeSpan due, TimeSpan period, Guid? cid = null, byte[] data = null)
+        public Task<IActorReminder> PromptMany(string name, TimeSpan due, TimeSpan period, string cid = null, byte[] data = null)
         {
             var context = _serializer.Serialize(new PromptContext(cid, PromptKind.Many, data));
             return _register(

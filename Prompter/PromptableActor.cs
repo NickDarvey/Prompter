@@ -20,7 +20,7 @@ namespace Prompter
         public Task ReceiveReminderAsync(string reminderName, byte[] state, TimeSpan dueTime, TimeSpan period) =>
             _prompt.ReceivePrompt(reminderName, state, dueTime, period);
 
-        protected abstract Task OnPrompt(string name, byte[] state, TimeSpan due, TimeSpan period, Guid? cid);
+        protected abstract Task OnPrompt(string name, byte[] state, TimeSpan due, TimeSpan period, string cid);
 
         /// <summary>
         /// Registers a prompt with the actor.
@@ -38,7 +38,7 @@ namespace Prompter
         /// A reference to the reminder.
         /// Store this if you want to manually unregister a prompt.
         /// </returns>
-        public Task<IActorReminder> PromptOnce(string name, TimeSpan due, Guid? cid = null, byte[] data = null) =>
+        public Task<IActorReminder> PromptOnce(string name, TimeSpan due, string cid = null, byte[] data = null) =>
             _prompt.PromptOnce(name, due, cid, data);
 
         /// <summary>
@@ -60,7 +60,7 @@ namespace Prompter
         /// A reference to the reminder.
         /// Store this if you want to manually unregister a prompt.
         /// </returns>
-        public Task<IActorReminder> PromptMany(string name, TimeSpan due, TimeSpan period, Guid? cid = null, byte[] data = null) =>
+        public Task<IActorReminder> PromptMany(string name, TimeSpan due, TimeSpan period, string cid = null, byte[] data = null) =>
             _prompt.PromptMany(name, due, period, cid, data);
 
         public Task<bool> ForgetPrompt(string name) =>

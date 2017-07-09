@@ -31,10 +31,10 @@ namespace Prompter.Tests.Mocks
         public Task ReceiveReminderAsync(string reminderName, byte[] state, TimeSpan dueTime, TimeSpan period) =>
             _prompt.ReceivePrompt(reminderName, state, dueTime, period);
 
-        public Task<IActorReminder> PromptOnce(string name, TimeSpan due, Guid? cid = null, byte[] ctx = null) =>
+        public Task<IActorReminder> PromptOnce(string name, TimeSpan due, string cid = null, byte[] ctx = null) =>
             _prompt.PromptOnce(name, due, cid, ctx);
 
-        public Task<IActorReminder> PromptMany(string name, TimeSpan due, TimeSpan period, Guid? cid = null, byte[] ctx = null) =>
+        public Task<IActorReminder> PromptMany(string name, TimeSpan due, TimeSpan period, string cid = null, byte[] ctx = null) =>
             _prompt.PromptMany(name, due, period, cid, ctx);
 
         public Task<bool> ForgetPrompt(string name) =>

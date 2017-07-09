@@ -11,7 +11,7 @@ namespace Prompter
     internal sealed class PromptContext
     {
         [DataMember(Name = "CorrelationId", Order = 0)]
-        public Guid? Cid { get; private set; }
+        public string Cid { get; private set; }
 
         [DataMember(Name = "Kind", Order = 1)]
         public PromptKind Kind { get; private set; }
@@ -19,7 +19,7 @@ namespace Prompter
         [DataMember(Name = "Data", Order = 2)]
         public byte[] Data { get; private set; }
 
-        public PromptContext(Guid? cid, PromptKind kind, byte[] data)
+        public PromptContext(string cid, PromptKind kind, byte[] data)
         {
             Cid = cid;
             Kind = kind;
